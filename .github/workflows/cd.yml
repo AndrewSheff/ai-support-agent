@@ -104,7 +104,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set image name prefix
-        run: echo "IMAGE_PREFIX=${{ env.REGISTRY }}/${{ github.repository_owner }}/ai-support-agent" >> $GITHUB_ENV
+        run: echo "IMAGE_PREFIX=${{ env.REGISTRY }}/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/ai-support-agent" >> $GITHUB_ENV
 
       # Бэкенд — два тега: latest и sha коммита для отката
       - name: Build and push backend image
