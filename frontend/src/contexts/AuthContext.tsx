@@ -8,6 +8,11 @@ interface AuthUser extends User {
   must_change_password: boolean
 }
 
+/** Результат логина — возвращаем юзера, чтоб вызывающий код мог проверить must_change_password */
+export interface LoginResult {
+  user: AuthUser
+}
+
 /** Что предоставляет наш AuthContext потребителям */
 export interface AuthContextValue {
   token: string | null
@@ -15,7 +20,7 @@ export interface AuthContextValue {
   isAuthenticated: boolean
   isAdmin: boolean
   mustChangePassword: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<LoginResult>
   logout: () => void
 }
 
@@ -99,12 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token])
 
-  // Логин — дергаем API, сохраняем токен и данные юзера
-  const login = useCallback(async (email: string, password: string) => {
+  // Логин — дергаем API, сохраняем токен и данные юзера, возвращаем результат
+  const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     const response = await authApi.login(email, password)
     localStorage.setItem('auth_token', response.access_token)
     setToken(response.access_token)
     setUser(response.user)
+    return { user: response.user }
   }, [])
 
   // Логаут — чистим все и отправляем на /login

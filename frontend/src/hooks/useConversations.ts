@@ -18,7 +18,7 @@ export function useConversations(search?: string) {
 export function useCreateConversation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (title?: string) => createConversation(title),
+    mutationFn: (title: string | undefined) => createConversation(title),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['conversations'] })
     },

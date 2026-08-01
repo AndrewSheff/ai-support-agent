@@ -59,9 +59,10 @@ async def list_conversations(
         Conversation.is_deleted.is_(False),
     )
 
-    # Если ищем — добавляем ILIKE по title
+    # Если ищем — добавляем ILIKE по title (экранируем LIKE-спецсимволы)
     if search:
-        base_filter = (*base_filter, Conversation.title.ilike(f"%{search}%"))
+        escaped_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        base_filter = (*base_filter, Conversation.title.ilike(f"%{escaped_search}%"))
 
     # Считаем общее количество
     count_query = select(func.count()).select_from(Conversation).where(*base_filter)

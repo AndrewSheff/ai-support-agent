@@ -15,8 +15,10 @@ export default function ChangePasswordPage() {
   const { user, isAdmin } = useAuth()
   const navigate = useNavigate()
 
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +40,7 @@ export default function ChangePasswordPage() {
     },
   ]
 
-  const allRequirementsMet = requirements.every((r) => r.met)
+  const allRequirementsMet = requirements.every((r) => r.met) && currentPassword.length > 0
 
   /** Отправляем новый пароль */
   const handleSubmit = async (e: FormEvent) => {
@@ -48,7 +50,7 @@ export default function ChangePasswordPage() {
     setIsLoading(true)
 
     try {
-      await changePassword(newPassword)
+      await changePassword(currentPassword, newPassword, confirmPassword)
       toast.success('Password changed successfully')
       // Даем секунду чтобы юзер увидел тост, потом редирект
       setTimeout(() => {
@@ -79,6 +81,38 @@ export default function ChangePasswordPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Текущий пароль (временный, выданный админом) */}
+            <div className="space-y-2">
+              <label htmlFor="current-password" className="text-sm font-medium">
+                Current Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="current-password"
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="pr-10"
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
             {/* Новый пароль */}
             <div className="space-y-2">
               <label htmlFor="new-password" className="text-sm font-medium">
@@ -94,7 +128,6 @@ export default function ChangePasswordPage() {
                   className="pr-10"
                   disabled={isLoading}
                   autoComplete="new-password"
-                  autoFocus
                 />
                 <button
                   type="button"

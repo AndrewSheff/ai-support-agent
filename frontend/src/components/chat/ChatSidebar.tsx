@@ -116,7 +116,7 @@ export function ChatSidebar({ currentConversationId, onClose }: ChatSidebarProps
   // Создание нового чата
   const handleNewChat = useCallback(async () => {
     try {
-      const convo = await createConversation.mutateAsync()
+      const convo = await createConversation.mutateAsync(undefined)
       navigate(`/chat/${convo.id}`)
       onClose?.()
     } catch {

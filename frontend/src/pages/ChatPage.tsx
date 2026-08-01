@@ -100,7 +100,7 @@ export default function ChatPage() {
   const handleQuickAction = useCallback(
     async (text: string) => {
       try {
-        const convo = await createConversation.mutateAsync()
+        const convo = await createConversation.mutateAsync(undefined)
         navigate(`/chat/${convo.id}`)
 
         // Немного ждем, чтоб навигация отработала, потом шлем сообщение

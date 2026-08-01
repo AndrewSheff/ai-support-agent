@@ -149,12 +149,12 @@ async def call_gpt(messages: list[dict]) -> str:
                 temperature=0.1,
                 max_tokens=2048,
             )
-            answer = response.choices[0].message.content
+            answer = response.choices[0].message.content or ""
 
             logger.info(
                 "gpt_response_generated",
-                input_tokens=response.usage.prompt_tokens,
-                output_tokens=response.usage.completion_tokens,
+                input_tokens=response.usage.prompt_tokens if response.usage else 0,
+                output_tokens=response.usage.completion_tokens if response.usage else 0,
             )
 
             return answer

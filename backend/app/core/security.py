@@ -5,13 +5,10 @@ import secrets
 import string
 from datetime import UTC, datetime, timedelta
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import settings
-
-# Контекст для bcrypt — стандартная связка passlib + bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Алгоритм подписи JWT
 ALGORITHM = "HS256"
@@ -36,13 +33,15 @@ def verify_token(token: str) -> dict:
 
 
 def hash_password(password: str) -> str:
-    """Хеширует пароль через bcrypt — просто и надежно."""
-    return pwd_context.hash(password)
+    """Хеширует пароль через bcrypt напрямую — passlib не дружит с новым bcrypt."""
+    password_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Сверяет пароль с хешем — возвращает True если совпало."""
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
 
 
 def generate_temporary_password() -> str:
