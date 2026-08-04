@@ -1,126 +1,154 @@
+<div align="center">
+
 # AI Support Agent
 
-[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://python.org)
+### Enterprise AI Assistant with RAG & Knowledge Base
+
+[![CI/CD](https://github.com/AndrewSheff/ai-support-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/AndrewSheff/ai-support-agent/actions)
+[![Python 3.13](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript 6](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16+pgvector-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docker.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Enterprise-grade AI assistant platform that enables companies to build internal knowledge bases and provide intelligent support to employees. Upload company documents, and the AI answers questions using RAG (Retrieval-Augmented Generation) with source citations.
+**Turn your company documents into an intelligent AI assistant.**
+Upload PDFs, DOCX, and TXT files — the AI answers employee questions with cited sources using RAG.
 
-![AI Support Agent](screenshots/preview.png)
+[Quick Start](#-quick-start) &bull; [Features](#-features) &bull; [Architecture](#-architecture) &bull; [API](#-api-documentation) &bull; [Demo](#-demo)
 
-## Features
+</div>
 
-- **AI Chat with RAG** — Ask questions in natural language and get answers grounded in your company's documents with source citations
-- **Multi-Model Support** — Choose between Claude (Anthropic) and GPT (OpenAI) for answer generation
-- **Document Management** — Upload PDF, DOCX, and TXT files with automatic processing, chunking, and vector indexing
-- **Conversation History** — Full conversation persistence with search, soft delete, and context-aware follow-ups
-- **Admin Dashboard** — Real-time analytics: user stats, question activity charts, top questions, document status
-- **User Management** — Role-based access control (Admin/User), user CRUD, temporary password generation
-- **Rate Limiting** — Redis-backed request throttling with per-user and per-IP limits
-- **Health Monitoring** — System health endpoint checking database, Redis, and AI provider connectivity
+---
+
+## The Problem
+
+> Companies lose **5+ hours per week per employee** searching for information across internal wikis, shared drives, and Slack channels. New hires take weeks to get up to speed. Support teams answer the same questions repeatedly.
+
+**AI Support Agent** solves this by creating a single AI-powered knowledge base that instantly answers questions using your actual company documents — with source citations, so employees can trust and verify the answers.
+
+---
 
 ## Screenshots
 
-| Login | Chat | Dashboard |
-|:---:|:---:|:---:|
-| ![Login](screenshots/login.png) | ![Chat](screenshots/chat.png) | ![Dashboard](screenshots/dashboard.png) |
+| Login | AI Chat with Sources |
+|:---:|:---:|
+| ![Login](screenshots/login.png) | ![Chat](screenshots/chat.png) |
 
-| Documents | Users | Settings |
-|:---:|:---:|:---:|
-| ![Documents](screenshots/documents.png) | ![Users](screenshots/users.png) | ![Settings](screenshots/settings.png) |
+| Admin Dashboard | Document Management |
+|:---:|:---:|
+| ![Dashboard](screenshots/dashboard.png) | ![Documents](screenshots/documents.png) |
 
-## Tech Stack
+| User Management | Settings |
+|:---:|:---:|
+| ![Users](screenshots/users.png) | ![Settings](screenshots/settings.png) |
 
-### Backend
-| Technology | Purpose |
-|-----------|---------|
-| Python 3.13 | Runtime |
-| FastAPI | Web framework |
-| SQLAlchemy 2.0 | Async ORM |
-| Alembic | Database migrations |
-| PostgreSQL 16 + pgvector | Database with vector search |
-| Redis | Rate limiting & caching |
-| Pydantic v2 | Data validation |
-| JWT (python-jose) | Authentication |
-| tiktoken | Token counting for chunking |
-| structlog | Structured JSON logging |
+---
 
-### Frontend
-| Technology | Purpose |
-|-----------|---------|
-| React 19 | UI library |
-| TypeScript 6 | Type safety |
-| Vite | Build tool |
-| TailwindCSS v4 | Styling |
-| shadcn/ui | Component library |
-| React Query (TanStack) | Server state management |
-| React Router v7 | Client-side routing |
-| Recharts | Dashboard charts |
-| react-markdown | Markdown rendering |
+## Key Features
 
-### Infrastructure
-| Technology | Purpose |
-|-----------|---------|
-| Docker & Docker Compose | Containerization |
-| Nginx | Reverse proxy & static serving |
-| GitHub Actions | CI/CD pipeline |
+### AI Chat with RAG
+Ask questions in natural language. The AI searches through your documents, finds relevant passages, and generates accurate answers with clickable source citations. Supports multi-turn conversations with context awareness.
+
+### Multi-Model Support
+Choose between **Claude** (Anthropic) and **GPT** (OpenAI) for answer generation. Embeddings powered by OpenAI `text-embedding-3-small` (1536 dimensions) with pgvector HNSW indexing.
+
+### Document Pipeline
+Upload PDF, DOCX, and TXT files. Automatic processing pipeline: parse text, normalize Unicode, chunk into 512-token segments (50-token overlap via tiktoken), generate embeddings, store in PostgreSQL with vector index.
+
+### Admin Dashboard
+Real-time analytics: total users, documents, conversations. Question activity charts (7d/30d), top-5 most asked questions, document processing status monitoring.
+
+### Enterprise Security
+JWT authentication with bcrypt password hashing. Role-based access control (Admin/User). Redis-backed rate limiting. Security headers via Nginx. Password complexity validation. Temporary password generation for new users with forced change on first login.
+
+### Production Infrastructure
+Multi-stage Docker builds, Nginx reverse proxy with gzip and security headers, Alembic database migrations, structured JSON logging with request tracing, comprehensive health checks, CI/CD via GitHub Actions.
+
+---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                    Nginx                         │
-│            Reverse Proxy + TLS                   │
-├────────────────────┬────────────────────────────┤
-│                    │                             │
-│   Frontend (SPA)   │      Backend (API)          │
-│   React + Vite     │      FastAPI + Uvicorn      │
-│   Port 3000        │      Port 8000              │
-│                    │                             │
-│                    │   ┌──────────────────────┐  │
-│                    │   │    RAG Pipeline       │  │
-│                    │   │  Parse → Chunk →      │  │
-│                    │   │  Embed → Search →     │  │
-│                    │   │  Generate             │  │
-│                    │   └──────────────────────┘  │
-│                    │                             │
-├────────────────────┴────────────────────────────┤
-│                                                  │
-│   PostgreSQL 16          Redis 7                 │
-│   + pgvector             Rate Limiting           │
-│   Vector Search (HNSW)   Session Cache           │
-│                                                  │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                      Nginx                            │
+│              Reverse Proxy + Headers                  │
+├──────────────────────┬───────────────────────────────┤
+│    Frontend (SPA)    │        Backend (API)           │
+│    React 19 + Vite   │     FastAPI + Uvicorn          │
+│    TailwindCSS v4    │     SQLAlchemy 2.0 (async)     │
+│                      │                                │
+│  8 pages             │   ┌────────────────────────┐   │
+│  React Query cache   │   │     RAG Pipeline        │   │
+│  Axios + JWT         │   │  Parse → Chunk → Embed  │   │
+│                      │   │  Search → Generate      │   │
+│                      │   └────────────────────────┘   │
+├──────────────────────┴───────────────────────────────┤
+│   PostgreSQL 16 + pgvector       Redis 7              │
+│   Vector Search (HNSW)           Rate Limiting        │
+│   5 models, Alembic migrations   Session Cache        │
+└──────────────────────────────────────────────────────┘
 ```
+
+### RAG Pipeline
+
+```
+Document Upload ─→ Parse (PDF/DOCX/TXT)
+                ─→ Clean (Unicode NFC, remove artifacts)
+                ─→ Chunk (tiktoken cl100k_base, 512 tokens, 50 overlap)
+                ─→ Embed (OpenAI text-embedding-3-small, 1536d)
+                ─→ Store (pgvector HNSW index)
+
+User Question  ─→ Embed query
+               ─→ Vector search (cosine similarity, top-5)
+               ─→ Build prompt (system + context + last 6 messages)
+               ─→ Generate answer (Claude / GPT)
+               ─→ Return with source citations
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| **Backend** | Python, FastAPI, SQLAlchemy (async), Alembic | 3.13, 0.115, 2.0 |
+| **Frontend** | React, TypeScript, Vite, TailwindCSS, shadcn/ui | 19, 6.0, 8, v4 |
+| **Database** | PostgreSQL + pgvector (HNSW) | 16 |
+| **Cache** | Redis | 7 |
+| **AI** | Anthropic Claude, OpenAI GPT + Embeddings | Latest |
+| **Auth** | JWT (python-jose) + bcrypt | HS256 |
+| **Infra** | Docker Compose, Nginx, GitHub Actions | Multi-stage |
+| **Logging** | structlog (JSON) | Request tracing |
+| **Testing** | Pytest (async), 42 tests | 6 test files |
+
+---
 
 ## Quick Start
 
 ### Prerequisites
 - Docker & Docker Compose
 - OpenAI API key (for embeddings)
-- Anthropic API key and/or OpenAI API key (for chat)
+- Anthropic and/or OpenAI API key (for chat)
 
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/yourusername/ai-support-agent.git
+git clone https://github.com/AndrewSheff/ai-support-agent.git
 cd ai-support-agent
 cp .env.example .env
 ```
 
-Edit `.env` and set your API keys and secrets:
+Edit `.env`:
 
 ```env
-SECRET_KEY=your-random-32-char-secret-key
+SECRET_KEY=your-random-32-char-secret-key-here
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 ADMIN_EMAIL=admin@yourcompany.com
-ADMIN_DEFAULT_PASSWORD=YourSecurePassword123
-POSTGRES_PASSWORD=your-db-password
+ADMIN_DEFAULT_PASSWORD=SecurePass123
+POSTGRES_PASSWORD=strong-db-password
 ```
 
 ### 2. Launch
@@ -134,96 +162,55 @@ docker compose up -d
 | Service | URL |
 |---------|-----|
 | Application | http://localhost |
-| API Documentation | http://localhost/docs |
+| API Docs (Swagger) | http://localhost/docs |
 | Health Check | http://localhost/api/v1/health |
 
-Default admin credentials are set in `.env`. You will be prompted to change the password on first login.
+Login with admin credentials from `.env`. You'll be prompted to change the password on first login.
+
+### 4. Upload documents
+
+Go to **Documents** tab, upload your PDF/DOCX/TXT files. The system automatically processes, chunks, and indexes them. Once status shows "Indexed" — start asking questions in the Chat.
+
+---
 
 ## API Documentation
 
-Full interactive API documentation is available at `/docs` (Swagger UI) when the application is running.
+Interactive Swagger documentation at `/docs`. Key endpoints:
 
-### Endpoints Overview
+| Group | Endpoints | Auth | Description |
+|-------|-----------|------|-------------|
+| **Health** | `GET /health` | Public | System status with DB, Redis, AI checks |
+| **Auth** | `POST /login`, `POST /change-password` | Public / User | JWT authentication |
+| **Chat** | 5 endpoints | User | Conversations CRUD + RAG messages |
+| **Documents** | 4 endpoints | Admin | Upload, list, detail, delete |
+| **Users** | 5 endpoints | Admin / User | User CRUD + profile |
+| **Dashboard** | 3 endpoints | Admin | Stats, activity charts, top questions |
 
-| Group | Endpoints | Auth |
-|-------|-----------|------|
-| **Health** | `GET /api/v1/health` | Public |
-| **Auth** | `POST /login`, `POST /change-password` | Public / User |
-| **Chat** | CRUD conversations, send messages | User |
-| **Documents** | Upload, list, delete documents | Admin |
-| **Users** | CRUD users, update profile | Admin / User |
-| **Dashboard** | Stats, activity, top questions | Admin |
+**Total: 22 API endpoints**, all with Pydantic v2 validation, structured error responses, and rate limiting.
 
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql+asyncpg://postgres:postgres@postgres:5432/ai_support_agent` |
-| `REDIS_URL` | Redis connection string | `redis://redis:6379/0` |
-| `SECRET_KEY` | JWT signing key (min 32 chars) | **Required** |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT token lifetime | `30` |
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude | — |
-| `OPENAI_API_KEY` | OpenAI API key for GPT & embeddings | — |
-| `ADMIN_EMAIL` | Initial admin email | `admin@company.com` |
-| `ADMIN_DEFAULT_PASSWORD` | Initial admin password | **Required** |
-| `MAX_FILE_SIZE` | Max upload size in bytes | `52428800` (50MB) |
-| `LOG_LEVEL` | Logging level | `INFO` |
-
-## Project Structure
-
-```
-├── backend/
-│   ├── app/
-│   │   ├── api/v1/          # Route handlers (auth, chat, documents, users, dashboard, health)
-│   │   ├── core/            # Security, logging, exceptions, rate limiting
-│   │   ├── models/          # SQLAlchemy ORM models
-│   │   ├── schemas/         # Pydantic request/response schemas
-│   │   ├── services/        # Business logic layer
-│   │   │   └── rag/         # RAG pipeline (processor, embeddings, retriever, generator)
-│   │   └── tasks/           # Background tasks (document processing)
-│   ├── alembic/             # Database migrations
-│   ├── tests/               # Pytest test suite
-│   └── scripts/             # Seed data and utilities
-├── frontend/
-│   └── src/
-│       ├── api/             # Axios API client functions
-│       ├── components/      # React components (chat, layout, ui)
-│       ├── contexts/        # Auth context provider
-│       ├── hooks/           # React Query hooks
-│       ├── pages/           # Page components
-│       ├── types/           # TypeScript type definitions
-│       └── lib/             # Utilities and constants
-├── docker/
-│   └── nginx/               # Nginx configuration
-├── .github/workflows/       # CI/CD pipelines
-├── docker-compose.yml
-└── .env.example
-```
+---
 
 ## Development
 
-### Backend (local)
+### Backend
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
 
-# Start PostgreSQL and Redis (via Docker)
+# Start dependencies
 docker compose up -d postgres redis
 
-# Run migrations
+# Run migrations & seed
 alembic upgrade head
-
-# Seed demo data
 python -m scripts.seed
 
-# Start server
+# Start dev server
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend (local)
+### Frontend
 
 ```bash
 cd frontend
@@ -231,51 +218,73 @@ npm install
 npm run dev    # http://localhost:5173
 ```
 
+### Testing
+
+```bash
+cd backend && pytest tests/ -v
+```
+
+42 tests across 6 files covering auth, users, chat, documents, dashboard, and RAG utilities.
+
 ### Linting
 
 ```bash
-# Backend
-ruff check backend/
-
-# Frontend
-cd frontend && npx eslint src/
-npx tsc --noEmit
+ruff check backend/             # Python
+cd frontend && npx eslint src/  # TypeScript
+npx tsc --noEmit                # Type check
 ```
 
-## Testing
+---
 
-```bash
-cd backend
-pytest tests/ -v
-```
-
-42 tests covering authentication, user management, chat, documents, dashboard, and RAG utilities.
+## Project Structure
 
 ```
-tests/test_auth.py       ✓ Login, change password, error handling
-tests/test_users.py      ✓ CRUD, role changes, self-protection
-tests/test_chat.py       ✓ Conversations, messages, access control
-tests/test_documents.py  ✓ Upload, list, delete, authorization
-tests/test_dashboard.py  ✓ Stats, activity, top questions
-tests/test_rag.py        ✓ Text processing, chunking, security utils
+ai-support-agent/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/          # REST endpoints (6 routers)
+│   │   ├── core/            # Security, logging, exceptions, rate limiting
+│   │   ├── models/          # SQLAlchemy models (5 entities)
+│   │   ├── schemas/         # Pydantic v2 request/response schemas
+│   │   ├── services/        # Business logic layer
+│   │   │   └── rag/         # RAG pipeline (processor, embeddings, retriever, generator)
+│   │   └── tasks/           # Background document processing
+│   ├── alembic/             # Database migrations
+│   ├── tests/               # 42 pytest tests
+│   ├── Dockerfile           # Multi-stage, security-hardened
+│   └── entrypoint.sh        # Migrations + server startup
+├── frontend/
+│   └── src/
+│       ├── api/             # Axios clients with JWT interceptor
+│       ├── components/      # React components (chat, dashboard, layout, ui)
+│       ├── contexts/        # Auth context provider
+│       ├── hooks/           # React Query custom hooks
+│       ├── pages/           # 8 page components
+│       └── types/           # TypeScript interfaces
+├── docker/nginx/            # Nginx reverse proxy config
+├── .github/workflows/       # CI (lint+test+build) + CD (GHCR push)
+├── docker-compose.yml       # 5 services with health checks
+└── .env.example
 ```
 
-## RAG Pipeline
+---
 
-```
-Document Upload → Parse (PDF/DOCX/TXT)
-                → Clean Text (normalize, remove artifacts)
-                → Chunk (tiktoken, 512 tokens, 50 overlap)
-                → Embed (OpenAI text-embedding-3-small, 1536d)
-                → Store (pgvector HNSW index)
+## Environment Variables
 
-User Question  → Embed Query
-               → Vector Search (cosine similarity, top 5)
-               → Build Prompt (system + context + history)
-               → Generate Answer (Claude / GPT)
-               → Return with Source Citations
-```
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `SECRET_KEY` | Yes | — | JWT signing key (min 32 chars) |
+| `ADMIN_DEFAULT_PASSWORD` | Yes | — | Initial admin password |
+| `OPENAI_API_KEY` | Yes | — | For embeddings + optional chat |
+| `ANTHROPIC_API_KEY` | No | — | For Claude chat (recommended) |
+| `DATABASE_URL` | No | Auto-configured | PostgreSQL async connection |
+| `REDIS_URL` | No | Auto-configured | Redis connection |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | No | `30` | JWT lifetime |
+| `MAX_FILE_SIZE` | No | `52428800` | Upload limit (50 MB) |
+| `LOG_LEVEL` | No | `INFO` | Logging verbosity |
+
+---
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+[MIT](LICENSE) — free for commercial use.
