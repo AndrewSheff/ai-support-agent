@@ -23,7 +23,7 @@
 
 **Upload company documents. Employees ask questions. AI answers with exact source references.**
 
-[Quick Start](#-quick-start) · [Features](#-features) · [Screenshots](#-screenshots) · [Architecture](#-architecture) · [API](#-api-documentation)
+[Quick Start](#quick-start) · [Features](#features) · [Screenshots](#screenshots) · [Architecture](#architecture) · [API](#api-documentation)
 
 </div>
 
