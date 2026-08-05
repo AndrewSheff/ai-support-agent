@@ -4,11 +4,12 @@
 -->
 <!-- <img src="assets/banner.png" alt="AI Support Agent" width="100%"> -->
 
+> **[English version](README_EN.md)**
+
 <div align="center">
 
 # AI Support Agent
 
-### Enterprise AI Assistant with RAG & Knowledge Base
 ### Корпоративный AI-ассистент с RAG и базой знаний
 
 [![CI](https://github.com/AndrewSheff/ai-support-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/AndrewSheff/ai-support-agent/actions)
@@ -20,116 +21,112 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docker.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Upload company documents. Employees ask questions. AI answers with exact source references.**
-
 **Загрузите документы компании. Сотрудники задают вопросы. AI отвечает со ссылками на источники.**
 
-[Quick Start](#-quick-start) · [Features](#-features) · [Screenshots](#-screenshots) · [Architecture](#-architecture) · [API](#-api-documentation)
+[Быстрый старт](#-быстрый-старт) · [Возможности](#-возможности) · [Скриншоты](#-скриншоты) · [Архитектура](#-архитектура) · [API](#-документация-api)
 
 </div>
 
 ---
-
-> **The Problem:** Employees spend 5-8 hours per week searching for information in internal documents. New hires take 2-4 weeks to onboard. HR and legal answer the same questions repeatedly. Internal wikis become outdated and nobody trusts them.
 
 > **Проблема:** Сотрудники тратят 5-8 часов в неделю на поиск информации во внутренних документах. Новички адаптируются 2-4 недели. HR и юристы отвечают на одни и те же вопросы. Внутренние вики устаревают и им никто не доверяет.
 
-**AI Support Agent** is a self-hosted AI assistant that answers employee questions using your company's actual documents. Upload policies, manuals, and guides — the system builds a RAG pipeline with vector embeddings and provides precise answers with links to source documents.
+**AI Support Agent** — self-hosted AI-ассистент, который отвечает на вопросы сотрудников на основе реальных документов компании. Загрузите политики, инструкции и руководства — система построит RAG pipeline с векторными эмбеддингами и будет давать точные ответы со ссылками на источники.
 
 <div align="center">
 
-| Lines of Code | API Endpoints | DB Models | Pages | Tests | Docker Services |
+| Строк кода | Endpoint'ов API | Моделей БД | Страниц | Тестов | Сервисов Docker |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| **9,500+** | **22** | **6 + pgvector** | **10** | **42** | **5** |
+| **9 500+** | **22** | **6 + pgvector** | **10** | **42** | **5** |
 
 </div>
 
 ---
 
-## Screenshots
+## Скриншоты
 
-| AI Chat with Sources |
+| AI-чат с источниками |
 |:--------------------:|
 | ![Chat](screenshots/chat.png) |
 
 ---
 
-## Features
+## Возможности
 
-**AI Chat with Sources** — employees ask questions in natural language. The system searches relevant document chunks, builds context, and generates precise answers with citations pointing to exact source documents.
+**AI-чат с источниками** — сотрудники задают вопросы на естественном языке. Система ищет релевантные фрагменты документов, формирует контекст и генерирует точные ответы с указанием конкретных источников.
 
-**Document Management** — upload PDF, DOCX, TXT files. Automatic text extraction, chunking, and vector embedding generation. Track processing status in real time.
+**Управление документами** — загрузка PDF, DOCX, TXT файлов. Автоматическое извлечение текста, разбивка на чанки и генерация векторных эмбеддингов. Отслеживание статуса обработки в реальном времени.
 
-**RAG Pipeline** — Retrieval-Augmented Generation: vector search finds relevant chunks, context window is built with metadata, LLM generates an answer grounded in actual documents.
+**RAG Pipeline** — Retrieval-Augmented Generation: векторный поиск находит релевантные фрагменты, формируется контекстное окно с метаданными, LLM генерирует ответ на основе реальных документов.
 
-**Conversation History** — maintains chat context within a session. Follow-up questions understand previous context. Full conversation log for admins.
+**История разговоров** — сохраняет контекст чата в рамках сессии. Уточняющие вопросы понимают предыдущий контекст. Полный лог переписки для администраторов.
 
-**Semantic Search** — pgvector with HNSW indexing. Search by meaning across all documents. Cosine similarity ranking with relevance scores.
+**Семантический поиск** — pgvector с HNSW-индексированием. Поиск по смыслу по всем документам. Ранжирование по косинусному сходству с оценками релевантности.
 
-**Admin Dashboard** — document count, question volume, average relevance score. Monitor system usage and document coverage.
+**Панель администратора** — количество документов, объем вопросов, средняя оценка релевантности. Мониторинг использования системы и покрытия документами.
 
-**Multi-Provider AI** — switch between OpenAI GPT and Anthropic Claude. Configure model, temperature, and system prompt from the admin panel.
+**Несколько AI-провайдеров** — переключение между OpenAI GPT и Anthropic Claude. Настройка модели, temperature и системного промпта из панели администратора.
 
-**Role-Based Access** — User (chat only) and Admin (document management, settings, analytics) roles. JWT authentication with bcrypt.
+**Ролевой доступ** — роли User (только чат) и Admin (управление документами, настройки, аналитика). JWT-аутентификация с bcrypt.
 
-**Enterprise Security** — rate limiting, CORS, structured JSON logging, request tracing. Self-hosted: your data stays on your servers.
+**Корпоративная безопасность** — rate limiting, CORS, структурированное JSON-логирование, трассировка запросов. Self-hosted: ваши данные остаются на ваших серверах.
 
 ---
 
-## Architecture
+## Архитектура
 
 ```
 ┌──────────────────────────────────────────────────┐
 │                    Nginx :80                      │
-│               Reverse Proxy + Headers             │
+│           Обратный прокси + заголовки             │
 ├──────────────────┬───────────────────────────────┤
 │  Frontend :3000  │        Backend :8000           │
 │  React 19 + Vite │     FastAPI + Uvicorn          │
 │  TailwindCSS v4  │     SQLAlchemy 2.0 (async)     │
-│  Chat UI         │   ┌────────────────────────┐   │
-│  10 pages        │   │     RAG Pipeline        │   │
-│                  │   │  Upload → Chunk → Embed  │   │
-│                  │   │  Search → Context → LLM  │   │
+│  Интерфейс чата  │   ┌────────────────────────┐   │
+│  10 страниц      │   │     RAG Pipeline        │   │
+│                  │   │  Загрузка→Чанки→Эмбед  │   │
+│                  │   │  Поиск→Контекст→LLM    │   │
 │                  │   └────────────────────────┘   │
 ├──────────────────┴───────────────────────────────┤
 │   PostgreSQL 16 + pgvector       Redis 7          │
-│   Vector Search (HNSW)           Rate Limiting    │
-│   6 models, Alembic              Session Cache    │
+│   Векторный поиск (HNSW)         Rate Limiting    │
+│   6 моделей, Alembic             Кеш сессий       │
 └──────────────────────────────────────────────────┘
 ```
 
 ### RAG Flow
 
 ```
-User asks a question
+Пользователь задает вопрос
         |
         v
-  [Generate question embedding]
+  [Генерация эмбеддинга вопроса]
         |
         v
-  [pgvector: find top-K relevant chunks]
+  [pgvector: поиск top-K релевантных чанков]
         |
         v
-  [Build context window with metadata]
-  [Document title, page number, chunk text]
+  [Формирование контекстного окна с метаданными]
+  [Название документа, номер страницы, текст чанка]
         |
         v
-  [LLM generates answer grounded in context]
+  [LLM генерирует ответ на основе контекста]
         |
         v
-  [Return answer + source references]
+  [Возврат ответа + ссылки на источники]
 ```
 
 ---
 
-## Quick Start
+## Быстрый старт
 
-### Prerequisites
+### Требования
 - Docker & Docker Compose v2+
-- OpenAI API key (required for embeddings)
-- (Optional) Anthropic API key for Claude
+- OpenAI API key (обязателен для эмбеддингов)
+- (Опционально) Anthropic API key для Claude
 
-### 1. Clone and configure
+### 1. Клонирование и настройка
 
 ```bash
 git clone https://github.com/AndrewSheff/ai-support-agent.git
@@ -137,112 +134,112 @@ cd ai-support-agent
 cp .env.example .env
 ```
 
-Edit `.env`:
+Отредактируйте `.env`:
 
 ```env
-SECRET_KEY=your-random-32-char-string    # required
-ADMIN_PASSWORD=SecurePass123             # required
-OPENAI_API_KEY=sk-...                    # required for embeddings
-ANTHROPIC_API_KEY=sk-ant-...             # optional
+SECRET_KEY=your-random-32-char-string    # обязательно
+ADMIN_PASSWORD=SecurePass123             # обязательно
+OPENAI_API_KEY=sk-...                    # обязательно для эмбеддингов
+ANTHROPIC_API_KEY=sk-ant-...             # опционально
 ```
 
-### 2. Launch
+### 2. Запуск
 
 ```bash
 docker compose up -d
 ```
 
-### 3. Access
+### 3. Доступ
 
-| Service | URL |
+| Сервис | URL |
 |:--------|:----|
-| Application | http://localhost |
-| API Docs (Swagger) | http://localhost/docs |
+| Приложение | http://localhost |
+| Документация API (Swagger) | http://localhost/docs |
 
-Login with admin credentials. Upload documents, then switch to chat and ask questions.
+Войдите с данными администратора. Загрузите документы, затем перейдите в чат и задавайте вопросы.
 
 ---
 
-## Tech Stack
+## Технологический стек
 
-| Layer | Technology | Version |
+| Слой | Технология | Версия |
 |:------|:-----------|:--------|
 | **Backend** | Python, FastAPI, SQLAlchemy (async), Alembic | 3.13, 0.115, 2.0 |
-| **Embeddings** | OpenAI text-embedding-3-small, pgvector (HNSW) | 1536 dims |
+| **Эмбеддинги** | OpenAI text-embedding-3-small, pgvector (HNSW) | 1536 dims |
 | **Frontend** | React, TypeScript, Vite, TailwindCSS, shadcn/ui | 19, 5+, 6, v4 |
-| **Database** | PostgreSQL + pgvector | 16 |
-| **Cache** | Redis | 7 |
+| **База данных** | PostgreSQL + pgvector | 16 |
+| **Кеш** | Redis | 7 |
 | **AI** | Anthropic Claude, OpenAI GPT | Latest |
-| **Auth** | JWT + bcrypt | HS256 |
-| **Infra** | Docker Compose, Nginx, GitHub Actions CI/CD | Multi-stage |
-| **Logging** | structlog (JSON) | Request tracing |
-| **Testing** | Pytest (async) | 42 tests |
+| **Аутентификация** | JWT + bcrypt | HS256 |
+| **Инфраструктура** | Docker Compose, Nginx, GitHub Actions CI/CD | Multi-stage |
+| **Логирование** | structlog (JSON) | Трассировка запросов |
+| **Тестирование** | Pytest (async) | 42 теста |
 
 ---
 
-## API Documentation
+## Документация API
 
-Interactive Swagger at `/docs`. **22 endpoints** across 6 groups:
+Интерактивный Swagger по адресу `/docs`. **22 endpoint'а** в 6 группах:
 
-| Group | Prefix | Endpoints |
+| Группа | Префикс | Endpoint'ы |
 |:------|:-------|:----------|
-| Auth | `/api/v1/auth` | Register, login, profile |
-| Chat | `/api/v1/chat` | Ask questions, conversation history |
-| Documents | `/api/v1/documents` | Upload, list, delete, reprocess |
-| Search | `/api/v1/search` | Semantic search across documents |
-| Dashboard | `/api/v1/dashboard` | Usage stats and analytics |
-| Health | `/api/v1/health` | Liveness probe |
+| Аутентификация | `/api/v1/auth` | Регистрация, вход, профиль |
+| Чат | `/api/v1/chat` | Задать вопрос, история переписки |
+| Документы | `/api/v1/documents` | Загрузка, список, удаление, переобработка |
+| Поиск | `/api/v1/search` | Семантический поиск по документам |
+| Дашборд | `/api/v1/dashboard` | Статистика использования и аналитика |
+| Здоровье | `/api/v1/health` | Проверка доступности |
 
 ---
 
-## Project Structure
+## Структура проекта
 
 ```
 ai-support-agent/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI app with lifespan
-│   │   ├── config.py            # Pydantic settings
+│   │   ├── main.py              # FastAPI приложение с lifespan
+│   │   ├── config.py            # Настройки Pydantic
 │   │   ├── database.py          # Async SQLAlchemy + pgvector
-│   │   ├── api/v1/              # 6 REST API routers
-│   │   ├── models/              # 6 SQLAlchemy models
-│   │   ├── schemas/             # Pydantic v2 schemas
-│   │   ├── services/            # RAG, embedding, AI, search
-│   │   └── core/                # Security, logging
-│   ├── tests/                   # 42 pytest tests
-│   ├── alembic/                 # Migrations
+│   │   ├── api/v1/              # 6 REST API роутеров
+│   │   ├── models/              # 6 SQLAlchemy моделей
+│   │   ├── schemas/             # Pydantic v2 схемы
+│   │   ├── services/            # RAG, embedding, AI, поиск
+│   │   └── core/                # Безопасность, логирование
+│   ├── tests/                   # 42 pytest теста
+│   ├── alembic/                 # Миграции
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                 # Axios clients
-│   │   ├── components/          # Chat UI + layout
-│   │   ├── contexts/            # Auth context
-│   │   ├── pages/               # 10 page components
-│   │   └── lib/                 # Utilities
+│   │   ├── api/                 # Axios клиенты
+│   │   ├── components/          # Интерфейс чата + layout
+│   │   ├── contexts/            # Auth контекст
+│   │   ├── pages/               # 10 компонентов страниц
+│   │   └── lib/                 # Утилиты
 │   └── Dockerfile
 ├── docker/nginx/
 ├── .github/workflows/           # CI/CD
-├── docker-compose.yml           # 5 services
+├── docker-compose.yml           # 5 сервисов
 └── .env.example
 ```
 
 ---
 
-## Environment Variables
+## Переменные окружения
 
-| Variable | Required | Default | Description |
+| Переменная | Обязательна | По умолчанию | Описание |
 |:---------|:---------|:--------|:------------|
-| `SECRET_KEY` | Yes | -- | JWT signing key |
-| `ADMIN_PASSWORD` | Yes | -- | Initial admin password |
-| `OPENAI_API_KEY` | Yes | -- | For embeddings + optional chat |
-| `ANTHROPIC_API_KEY` | No | -- | For Claude |
-| `DATABASE_URL` | No | Auto | PostgreSQL connection |
-| `REDIS_URL` | No | Auto | Redis connection |
-| `LOG_LEVEL` | No | `INFO` | Logging verbosity |
+| `SECRET_KEY` | Да | -- | Ключ подписи JWT |
+| `ADMIN_PASSWORD` | Да | -- | Пароль первого администратора |
+| `OPENAI_API_KEY` | Да | -- | Для эмбеддингов + опциональный чат |
+| `ANTHROPIC_API_KEY` | Нет | -- | Для Claude |
+| `DATABASE_URL` | Нет | Авто | Подключение к PostgreSQL |
+| `REDIS_URL` | Нет | Авто | Подключение к Redis |
+| `LOG_LEVEL` | Нет | `INFO` | Уровень логирования |
 
 ---
 
-## Development
+## Разработка
 
 ```bash
 # Backend
@@ -256,16 +253,16 @@ uvicorn app.main:app --reload --port 8000
 # Frontend
 cd frontend && npm install && npm run dev
 
-# Tests
+# Тесты
 cd backend && pytest tests/ -v
 
-# Lint
+# Линтер
 ruff check backend/
 cd frontend && npm run lint && npx tsc --noEmit
 ```
 
 ---
 
-## License
+## Лицензия
 
-[MIT](LICENSE) — free for commercial use.
+[MIT](LICENSE) — свободно для коммерческого использования.
